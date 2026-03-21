@@ -97,9 +97,6 @@ function construirPrestador({
  * Construye un objeto slot en formato OpenMAPS/CL.
  * Mapea al recurso Slot de FHIR R4.
  *
- * Nota: Los copagos NO se incluyen. El sistema consumidor los calcula
- * usando base_price y fonasa_accreditation_level con el arancel público de Fonasa.
- *
  * @param {Object} params
  * @returns {Object} Objeto slot OpenMAPS/CL
  */
@@ -222,6 +219,8 @@ for (let dia = 0; dia < 3; dia++) {
     }));
   }
 }
+
+const payload = construirPayload("mi-software-de-agenda", [prestador], horas);
 
 console.log(JSON.stringify(payload, null, 2));
 console.log(`\n✓ ${horas.length} horas para 1 prestador generadas`);
