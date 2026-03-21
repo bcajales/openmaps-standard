@@ -1,0 +1,494 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/bcajales/openmaps-standard/openmaps-cl.schema.json",
+  "title": "OpenMAPS/CL",
+  "description": "Open Medical Appointment Protocol Standard — Chilean Profile. A common JSON format for exchanging medical appointment availability data in Chile. Simplified FHIR R4 profile (Schedule/Slot/Appointment) with native Chilean fields: RUT, Fonasa A-D, GES/AUGE, SIS-MINSAL specialty codes.",
+  "version": "0.1.0",
+  "status": "Draft",
+  "author": "Bernardo Cajales Millón",
+  "published": "2026-03-21",
+  "license": "MIT",
+  "repository": "https://github.com/bcajales/openmaps-standard",
+  "fhir_alignment": {
+    "base_standard": "HL7 FHIR R4",
+    "resources_used": ["Schedule", "Slot", "Appointment"],
+    "mapping": {
+      "provider": "FHIR R4 Schedule",
+      "slot": "FHIR R4 Slot",
+      "booking_request": "FHIR R4 Appointment (request)",
+      "booking_response": "FHIR R4 Appointment (response)"
+    }
+  },
+
+  "definitions": {
+
+    "rut": {
+      "type": "string",
+      "description": "Chilean national ID (RUT) in standard format XX.XXX.XXX-X",
+      "pattern": "^[0-9]{1,2}\\.[0-9]{3}\\.[0-9]{3}-[0-9kK]$",
+      "examples": ["12.345.678-9", "76.543.210-1"]
+    },
+
+    "fonasa_accreditation_level": {
+      "type": "string",
+      "enum": ["1", "2", "3"],
+      "description": "Nivel de acreditación Libre Elección del prestador en Fonasa (1, 2 o 3). Fuente: Superintendencia de Salud — Registro Nacional de Prestadores (rnpi.superdesalud.gob.cl)."
+    },
+
+    "insurance_type": {
+      "type": "string",
+      "enum": ["FONASA-A", "FONASA-B", "FONASA-C", "FONASA-D", "FONASA-LE", "ISAPRE", "PARTICULAR"],
+      "description": "Chilean insurance or coverage type. FONASA-A through D are the four Fonasa tiers. FONASA-LE = Libre Elección (any tier). ISAPRE = any private insurer. PARTICULAR = uninsured / self-pay."
+    },
+
+    "provider_type": {
+      "type": "string",
+      "enum": [
+        "clinic",
+        "hospital",
+        "medical_center",
+        "independent_professional",
+        "dental",
+        "laboratory",
+        "imaging_center",
+        "rehabilitation",
+        "other"
+      ],
+      "description": "Type of healthcare provider. clinic=Clínica, hospital=Hospital, medical_center=Centro médico/policlínico, independent_professional=Médico con consulta propia, dental=Centro dental, laboratory=Laboratorio clínico, imaging_center=Centro de imágenes, rehabilitation=Kinesiología/fonoaudiología."
+    },
+
+    "specialty": {
+      "type": "object",
+      "description": "Medical specialty using SIS-MINSAL codes (MINSAL Sistema de Información de Salud).",
+      "required": ["sis_code"],
+      "properties": {
+        "sis_code": {
+          "type": "string",
+          "description": "Official SIS-MINSAL specialty code (two digits, zero-padded).",
+          "pattern": "^[0-9]{2}$",
+          "examples": ["10", "03", "38"]
+        },
+        "sis_name": {
+          "type": "string",
+          "description": "Official SIS-MINSAL specialty name in uppercase Spanish.",
+          "examples": ["DERMATOLOGÍA", "CARDIOLOGÍA", "MEDICINA GENERAL/FAMILIAR"]
+        }
+      }
+    },
+
+    "ges": {
+      "type": "object",
+      "description": "GES (Garantías Explícitas en Salud) / AUGE information. GES guarantees access, timeliness, quality and financial protection for 87 specific health conditions in Chile.",
+      "required": ["is_ges"],
+      "properties": {
+        "is_ges": {
+          "type": "boolean",
+          "description": "Whether this appointment falls under a GES guarantee.",
+          "default": false
+        },
+        "ges_problem_code": {
+          "type": "string",
+          "description": "GES problem number (1–87). Required when is_ges is true.",
+          "example": "35"
+        },
+        "ges_problem_name": {
+          "type": "string",
+          "description": "Name of the GES health problem.",
+          "example": "Cáncer de mama"
+        },
+        "waiting_days_guarantee": {
+          "type": "integer",
+          "description": "Maximum waiting days guaranteed by GES for this condition.",
+          "example": 30
+        }
+      }
+    },
+
+    "location": {
+      "type": "object",
+      "description": "Physical location of the provider.",
+      "required": ["city", "country"],
+      "properties": {
+        "address": {
+          "type": "string",
+          "example": "Av. Providencia 1234"
+        },
+        "commune": {
+          "type": "string",
+          "description": "Chilean commune (comuna).",
+          "example": "Providencia"
+        },
+        "city": {
+          "type": "string",
+          "example": "Santiago"
+        },
+        "region": {
+          "type": "string",
+          "description": "Chilean administrative region.",
+          "example": "Región Metropolitana"
+        },
+        "country": {
+          "type": "string",
+          "const": "CL",
+          "description": "ISO 3166-1 alpha-2. Always CL for this profile."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "WGS84 latitude. Recommended for distance-based search.",
+          "example": -33.4294
+        },
+        "longitude": {
+          "type": "number",
+          "description": "WGS84 longitude.",
+          "example": -70.6148
+        }
+      }
+    },
+
+    "contact": {
+      "type": "object",
+      "properties": {
+        "phone": {
+          "type": "string",
+          "description": "E.164 format.",
+          "example": "+56223456789"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "whatsapp": {
+          "type": "string",
+          "description": "E.164 format."
+        }
+      }
+    },
+
+    "provider": {
+      "type": "object",
+      "description": "A healthcare provider — clinic, hospital, medical center, independent professional, or other health facility. Maps to FHIR R4 Schedule.",
+      "required": ["provider_id", "name", "provider_type", "rut_provider", "location"],
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "Unique identifier within the vendor's system."
+        },
+        "name": {
+          "type": "string",
+          "description": "Official name of the provider.",
+          "example": "Centro Médico Providencia"
+        },
+        "provider_type": {
+          "$ref": "#/definitions/provider_type"
+        },
+        "rut_provider": {
+          "$ref": "#/definitions/rut",
+          "description": "RUT of the legal entity."
+        },
+        "accepts_fonasa": {
+          "type": "boolean",
+          "description": "Whether this provider accepts Fonasa coverage.",
+          "default": false
+        },
+        "fonasa_accreditation_level": {
+          "$ref": "#/definitions/fonasa_accreditation_level"
+        },
+        "libre_eleccion": {
+          "type": "boolean",
+          "description": "Whether provider is part of the Fonasa Libre Elección network.",
+          "default": false
+        },
+        "superintendencia_code": {
+          "type": "string",
+          "description": "Code in Registro Nacional de Prestadores — Superintendencia de Salud."
+        },
+        "location": {
+          "$ref": "#/definitions/location"
+        },
+        "contact": {
+          "$ref": "#/definitions/contact"
+        },
+        "website": {
+          "type": "string",
+          "format": "uri"
+        },
+        "verified": {
+          "type": "boolean",
+          "description": "Whether the consuming system has verified this provider's identity and credentials.",
+          "default": false
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Average rating (0–5). Managed by the consuming system, not the vendor."
+        }
+      }
+    },
+
+    "slot": {
+      "type": "object",
+      "description": "A single available appointment slot. Maps to FHIR R4 Slot.",
+      "required": ["slot_id", "provider_id", "specialty", "start_datetime", "end_datetime", "status"],
+      "properties": {
+        "slot_id": {
+          "type": "string",
+          "description": "Unique identifier within the vendor's system. Must be stable — do not change between syncs.",
+          "example": "VENDOR-20260321-DER-001"
+        },
+        "provider_id": {
+          "type": "string",
+          "description": "References the provider offering this slot."
+        },
+        "specialty": {
+          "$ref": "#/definitions/specialty"
+        },
+        "professional_id": {
+          "type": "string",
+          "description": "Optional internal identifier for the professional."
+        },
+        "professional_name": {
+          "type": "string",
+          "description": "Full name of the professional.",
+          "example": "Dra. María González"
+        },
+        "rut_professional": {
+          "$ref": "#/definitions/rut",
+          "description": "RUT of the individual professional delivering this appointment."
+        },
+        "start_datetime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 with timezone offset. Use -03:00 (standard) or -04:00 (summer).",
+          "example": "2026-03-21T10:00:00-03:00"
+        },
+        "end_datetime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 with timezone offset.",
+          "example": "2026-03-21T10:30:00-03:00"
+        },
+        "duration_minutes": {
+          "type": "integer",
+          "description": "Duration in minutes. Must be consistent with start/end datetimes.",
+          "example": 30
+        },
+        "status": {
+          "type": "string",
+          "enum": ["available", "booked", "blocked", "cancelled"],
+          "description": "Current status of this slot."
+        },
+        "modality": {
+          "type": "string",
+          "enum": ["in_person", "telemedicine", "home_visit"],
+          "default": "in_person"
+        },
+        "accepts_fonasa": {
+          "type": "boolean",
+          "description": "Whether this slot accepts Fonasa coverage.",
+          "default": false
+        },
+        "fonasa_accreditation_level": {
+          "$ref": "#/definitions/fonasa_accreditation_level"
+        },
+        "insurance_accepted": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/insurance_type" },
+          "description": "Insurance and coverage types accepted for this specific slot.",
+          "example": ["FONASA-B", "FONASA-C", "FONASA-D", "FONASA-LE", "ISAPRE", "PARTICULAR"]
+        },
+        "libre_eleccion": {
+          "type": "boolean",
+          "description": "Whether this slot is available under Fonasa Libre Elección.",
+          "default": false
+        },
+        "ges": {
+          "$ref": "#/definitions/ges"
+        },
+        "base_price": {
+          "type": "number",
+          "description": "Precio de la prestación para pacientes sin previsión (PARTICULAR), en CLP.",
+          "example": 48000
+        },
+        "currency": {
+          "type": "string",
+          "const": "CLP",
+          "description": "Always CLP for this profile.",
+          "default": "CLP"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes about this slot.",
+          "example": "Primera consulta solamente"
+        },
+        "_schema": {
+          "type": "string",
+          "const": "openmaps-cl/0.1",
+          "description": "Schema identifier. Always openmaps-cl/0.1 for this version."
+        }
+      }
+    },
+
+    "patient": {
+      "type": "object",
+      "description": "Minimum patient information for a booking. OpenMAPS/CL deliberately limits patient data to protect privacy.",
+      "required": ["name", "phone"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "Juan Pérez"
+        },
+        "phone": {
+          "type": "string",
+          "description": "E.164 format.",
+          "example": "+56912345678"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Optional."
+        }
+      }
+    },
+
+    "booking_request": {
+      "type": "object",
+      "description": "A request to book a slot on behalf of a patient. Sent by the consuming system to the vendor. Maps to FHIR R4 Appointment (booking request).",
+      "required": ["slot_id", "patient"],
+      "properties": {
+        "slot_id": {
+          "type": "string",
+          "description": "The slot to book."
+        },
+        "patient": {
+          "$ref": "#/definitions/patient"
+        },
+        "insurance_type": {
+          "$ref": "#/definitions/insurance_type",
+          "description": "The patient's insurance type for this appointment."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes from the patient.",
+          "example": "Primera consulta. El paciente tiene derivación de médico general."
+        }
+      }
+    },
+
+    "booking_response": {
+      "type": "object",
+      "description": "The vendor's response to a booking request. Maps to FHIR R4 Appointment (booked/cancelled).",
+      "required": ["status", "booking_id"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "rejected", "pending"],
+          "description": "confirmed = booked. rejected = not available. pending = vendor will confirm asynchronously."
+        },
+        "booking_id": {
+          "type": "string",
+          "description": "Unique identifier in the vendor's system."
+        },
+        "confirmation_code": {
+          "type": "string",
+          "description": "Human-readable code to show the patient.",
+          "example": "ABC-7823"
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable confirmation or rejection message.",
+          "example": "Hora confirmada para el sábado 21 de marzo a las 10:00 en Centro Médico Providencia."
+        },
+        "rejection_reason": {
+          "type": "string",
+          "enum": ["slot_unavailable", "provider_inactive", "insurance_not_accepted", "validation_error", "other"],
+          "description": "Machine-readable reason code when status is rejected."
+        },
+        "slot": {
+          "$ref": "#/definitions/slot",
+          "description": "The confirmed slot with updated status."
+        }
+      }
+    },
+
+    "availability_payload": {
+      "type": "object",
+      "description": "Top-level payload for publishing availability from a vendor to a consuming system.",
+      "required": ["schema", "vendor_id", "slots"],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "const": "openmaps-cl/0.1",
+          "description": "Schema identifier."
+        },
+        "vendor_id": {
+          "type": "string",
+          "description": "Identifier of the software vendor publishing this data.",
+          "example": "my-scheduling-software"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this payload was generated. ISO 8601 UTC.",
+          "example": "2026-03-21T00:00:00Z"
+        },
+        "providers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/provider" },
+          "description": "Provider details. Only required when provider information changes. Consuming systems should cache provider data."
+        },
+        "slots": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/slot" },
+          "description": "Slots being published or updated."
+        }
+      }
+    }
+  },
+
+  "sis_minsal_codes": {
+    "description": "Complete SIS-MINSAL specialty codes. Source: MINSAL Sistema de Información de Salud.",
+    "codes": {
+      "01": "ANATOMÍA PATOLÓGICA",
+      "02": "ANESTESIOLOGÍA",
+      "03": "CARDIOLOGÍA",
+      "04": "CARDIOCIRUGÍA",
+      "05": "CIRUGÍA GENERAL",
+      "06": "CIRUGÍA PEDIÁTRICA",
+      "07": "CIRUGÍA PLÁSTICA Y REPARADORA",
+      "08": "CIRUGÍA TORÁCICA",
+      "09": "CIRUGÍA VASCULAR PERIFÉRICA",
+      "10": "DERMATOLOGÍA",
+      "11": "ENDOCRINOLOGÍA",
+      "12": "ENFERMEDADES RESPIRATORIAS",
+      "13": "GASTROENTEROLOGÍA",
+      "14": "GENÉTICA CLÍNICA",
+      "15": "GERIATRÍA",
+      "16": "GINECOLOGÍA",
+      "17": "HEMATOLOGÍA",
+      "18": "INFECTOLOGÍA",
+      "19": "INMUNOLOGÍA",
+      "20": "MEDICINA FÍSICA Y REHABILITACIÓN",
+      "21": "MEDICINA INTERNA",
+      "22": "MEDICINA NUCLEAR",
+      "23": "NEFROLOGÍA",
+      "24": "NEONATOLOGÍA",
+      "25": "NEUROCIRUGÍA",
+      "26": "NEUROLOGÍA",
+      "27": "NUTRIOLOGÍA",
+      "28": "OBSTETRICIA",
+      "29": "OFTALMOLOGÍA",
+      "30": "ONCOLOGÍA MÉDICA",
+      "31": "ORTOPEDIA Y TRAUMATOLOGÍA",
+      "32": "OTORRINOLARINGOLOGÍA",
+      "33": "PEDIATRÍA",
+      "34": "PSIQUIATRÍA",
+      "35": "RADIOLOGÍA",
+      "36": "REUMATOLOGÍA",
+      "37": "UROLOGÍA",
+      "38": "MEDICINA GENERAL/FAMILIAR",
+      "39": "ODONTOLOGÍA GENERAL",
+      "40": "PSICOLOGÍA"
+    }
+  }
+}
