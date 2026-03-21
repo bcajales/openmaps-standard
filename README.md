@@ -225,6 +225,14 @@ Ejemplos de código listos para adaptar:
 
 ---
 
+## Ecosistema
+
+![Diagrama del ecosistema OpenMAPS/CL](docs/ecosistema.svg)
+
+El diagrama muestra los cinco actores del ecosistema y cómo se relacionan a través del estándar. Las flechas sólidas corresponden a la Modalidad 2 (lectura y escritura, reserva en tiempo real). Las flechas punteadas corresponden a la Modalidad 1 (solo lectura, visibilidad en IA y buscadores).
+
+---
+
 ## Modos de publicación
 
 OpenMAPS/CL soporta dos modalidades de publicación, complementarias entre sí:
