@@ -1,10 +1,9 @@
-# OpenMAPS/CL
+# OpenMAPS/CL — Open Medical Appointment Protocol Standard
 
 **Estándar Abierto de Protocolo de Citas Médicas — Perfil Chile**
 
-**Versión:** 0.1.0 &nbsp;|&nbsp; **Estado:** Borrador público &nbsp;|&nbsp; **Licencia:** MIT
-**Autor:** Bernardo Cajales Millón &nbsp;|&nbsp; **Publicado:** Marzo 2026
-**Repositorio:** https://github.com/bcajales/openmaps-standard
+**Versión:** 0.1.0 &nbsp;|&nbsp; **Estado:** Borrador público &nbsp;|&nbsp; **Licencia:** MIT &nbsp;|&nbsp; **Autor:** Bernardo Cajales Millón
+**Publicado:** Marzo 2026 &nbsp;|&nbsp; **Repositorio:** https://github.com/bcajales/openmaps-standard
 
 ---
 
