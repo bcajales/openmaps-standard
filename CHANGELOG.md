@@ -26,6 +26,8 @@ Primera versión pública.
 - Campos `rut_provider` / `rut_professional` — con validación de formato RUT chileno
 - Documentación del cálculo de copago como responsabilidad del sistema consumidor (no del vendor)
 - Alineación semántica con HL7 FHIR R4 (Schedule/Slot/Appointment)
+- Referencia explícita a la Guía de Implementación Core-CL de HL7 Chile como base canónica del ecosistema FHIR en Chile
+- Mención de la Ley 20.584 (Derechos y Deberes del Paciente) en el marco regulatorio — privacidad por diseño
 
 **Documentación**
 - `README.md` — Presentación del estándar, decisiones de diseño y marco regulatorio
