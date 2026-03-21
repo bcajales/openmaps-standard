@@ -1,0 +1,138 @@
+<svg width="100%" viewBox="0 0 680 390" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+<style>
+  text { font-family: system-ui, sans-serif; fill: #1a1a1a; }
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; font-weight: 400; }
+  .col-header { font-size: 11px; font-weight: 500; fill: #666; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .bg-teal      { fill: #E1F5EE; stroke: #0F6E56; }
+  .bg-purple    { fill: #EEEDFE; stroke: #534AB7; }
+  .bg-blue      { fill: #E6F1FB; stroke: #185FA5; }
+  .bg-amber     { fill: #FAEEDA; stroke: #854F0B; }
+  .bg-gray      { fill: #F1EFE8; stroke: #5F5E5A; }
+  .text-teal    { fill: #085041; }
+  .text-purple  { fill: #3C3489; }
+  .text-blue    { fill: #0C447C; }
+  .text-amber   { fill: #633806; }
+  .text-gray    { fill: #444441; }
+
+  .inner-box    { fill: #fff; stroke: #C4C2B8; stroke-width: 0.5; }
+  .inner-text   { fill: #3d3d3a; }
+  .arr          { stroke: #3d3d3a; stroke-width: 1.5; fill: none; }
+  .arr-dashed   { stroke: #888780; stroke-width: 1.5; fill: none; stroke-dasharray: 5 3; }
+  .legend-line  { stroke: #3d3d3a; stroke-width: 1.5; fill: none; }
+  .legend-dash  { stroke: #888780; stroke-width: 1.5; fill: none; stroke-dasharray: 5 3; }
+  .divider      { stroke: #C4C2B8; stroke-width: 0.5; }
+</style>
+</defs>
+
+<!-- Column headers -->
+<text class="col-header" x="66"  y="16" text-anchor="middle">Prestadores</text>
+<text class="col-header" x="204" y="16" text-anchor="middle">Publicación</text>
+<text class="col-header" x="340" y="16" text-anchor="middle">Estándar</text>
+<text class="col-header" x="484" y="16" text-anchor="middle">Consumidores</text>
+<text class="col-header" x="622" y="16" text-anchor="middle">Paciente</text>
+
+<!-- PRESTADORES -->
+<rect class="bg-teal" x="10" y="24" width="112" height="280" rx="10" stroke-width="0.5"/>
+<text class="th text-teal" x="66" y="48" text-anchor="middle" dominant-baseline="central">Prestadores</text>
+<rect class="inner-box" x="20" y="62" width="92" height="30" rx="5"/>
+<text class="ts inner-text" x="66" y="77" text-anchor="middle" dominant-baseline="central">Clínica</text>
+<rect class="inner-box" x="20" y="100" width="92" height="30" rx="5"/>
+<text class="ts inner-text" x="66" y="115" text-anchor="middle" dominant-baseline="central">Hospital</text>
+<rect class="inner-box" x="20" y="138" width="92" height="30" rx="5"/>
+<text class="ts inner-text" x="66" y="153" text-anchor="middle" dominant-baseline="central">Centro médico</text>
+<rect class="inner-box" x="20" y="176" width="92" height="30" rx="5"/>
+<text class="ts inner-text" x="66" y="191" text-anchor="middle" dominant-baseline="central">Laboratorio</text>
+<rect class="inner-box" x="20" y="214" width="92" height="30" rx="5"/>
+<text class="ts inner-text" x="66" y="229" text-anchor="middle" dominant-baseline="central">Profesional</text>
+
+<!-- PUBLICACIÓN — Via vendor -->
+<rect class="bg-purple" x="142" y="24" width="124" height="160" rx="10" stroke-width="0.5"/>
+<text class="th text-purple" x="204" y="48" text-anchor="middle" dominant-baseline="central">Via vendor</text>
+<rect class="inner-box" x="153" y="62" width="102" height="30" rx="5"/>
+<text class="ts inner-text" x="204" y="77" text-anchor="middle" dominant-baseline="central">AgendaPro</text>
+<rect class="inner-box" x="153" y="100" width="102" height="30" rx="5"/>
+<text class="ts inner-text" x="204" y="115" text-anchor="middle" dominant-baseline="central">Reservo</text>
+<rect class="inner-box" x="153" y="138" width="102" height="30" rx="5"/>
+<text class="ts inner-text" x="204" y="153" text-anchor="middle" dominant-baseline="central">Dentalink</text>
+
+<!-- PUBLICACIÓN — Directa -->
+<rect class="bg-amber" x="142" y="194" width="124" height="110" rx="10" stroke-width="0.5"/>
+<text class="th text-amber" x="204" y="218" text-anchor="middle" dominant-baseline="central">Directa</text>
+<text class="ts text-amber" x="204" y="244" text-anchor="middle" dominant-baseline="central">/.well-known/</text>
+<text class="ts text-amber" x="204" y="264" text-anchor="middle" dominant-baseline="central">openmaps-cl.json</text>
+
+<!-- ESTÁNDAR -->
+<rect class="bg-blue" x="286" y="24" width="108" height="280" rx="10" stroke-width="0.5"/>
+<text class="th text-blue" x="340" y="58" text-anchor="middle" dominant-baseline="central">OpenMAPS/CL</text>
+<text class="ts text-blue" x="340" y="80" text-anchor="middle" dominant-baseline="central">v0.1.0 · MIT</text>
+<line class="divider" x1="298" y1="96" x2="382" y2="96"/>
+<text class="ts text-blue" x="340" y="114" text-anchor="middle" dominant-baseline="central">slot</text>
+<text class="ts text-blue" x="340" y="136" text-anchor="middle" dominant-baseline="central">provider</text>
+<text class="ts text-blue" x="340" y="158" text-anchor="middle" dominant-baseline="central">booking</text>
+<line class="divider" x1="298" y1="174" x2="382" y2="174"/>
+<text class="ts text-blue" x="340" y="194" text-anchor="middle" dominant-baseline="central">FHIR R4</text>
+<text class="ts text-blue" x="340" y="216" text-anchor="middle" dominant-baseline="central">Ley 21.668</text>
+<line class="divider" x1="298" y1="232" x2="382" y2="232"/>
+<text class="ts text-blue" x="340" y="252" text-anchor="middle" dominant-baseline="central">REST · JSON</text>
+
+<!-- CONSUMIDORES — Plataformas -->
+<rect class="bg-teal" x="414" y="24" width="140" height="160" rx="10" stroke-width="0.5"/>
+<text class="th text-teal" x="484" y="48" text-anchor="middle" dominant-baseline="central">Plataformas</text>
+<rect class="inner-box" x="424" y="62" width="120" height="30" rx="5"/>
+<text class="ts inner-text" x="484" y="77" text-anchor="middle" dominant-baseline="central">Fluxmed</text>
+<rect class="inner-box" x="424" y="100" width="120" height="30" rx="5"/>
+<text class="ts inner-text" x="484" y="115" text-anchor="middle" dominant-baseline="central">MINSAL / Fonasa</text>
+<rect class="inner-box" x="424" y="138" width="120" height="30" rx="5"/>
+<text class="ts inner-text" x="484" y="153" text-anchor="middle" dominant-baseline="central">Isapres</text>
+
+<!-- CONSUMIDORES — IA y buscadores -->
+<rect class="bg-amber" x="414" y="194" width="140" height="110" rx="10" stroke-width="0.5"/>
+<text class="th text-amber" x="484" y="218" text-anchor="middle" dominant-baseline="central">IA y buscadores</text>
+<rect class="inner-box" x="424" y="234" width="120" height="30" rx="5"/>
+<text class="ts inner-text" x="484" y="249" text-anchor="middle" dominant-baseline="central">Asistentes IA</text>
+<rect class="inner-box" x="424" y="268" width="120" height="30" rx="5"/>
+<text class="ts inner-text" x="484" y="283" text-anchor="middle" dominant-baseline="central">Buscadores</text>
+
+<!-- PACIENTE -->
+<rect class="bg-gray" x="574" y="24" width="96" height="280" rx="10" stroke-width="0.5"/>
+<text class="th text-gray" x="622" y="48" text-anchor="middle" dominant-baseline="central">Paciente</text>
+<rect class="inner-box" x="584" y="62" width="76" height="30" rx="5"/>
+<text class="ts inner-text" x="622" y="77" text-anchor="middle" dominant-baseline="central">Web</text>
+<rect class="inner-box" x="584" y="100" width="76" height="30" rx="5"/>
+<text class="ts inner-text" x="622" y="115" text-anchor="middle" dominant-baseline="central">WhatsApp</text>
+<line class="divider" x1="584" y1="140" x2="660" y2="140"/>
+<text class="ts text-gray" x="622" y="158" text-anchor="middle" dominant-baseline="central">Busca horas</text>
+<text class="ts text-gray" x="622" y="180" text-anchor="middle" dominant-baseline="central">Compara</text>
+<text class="ts text-gray" x="622" y="202" text-anchor="middle" dominant-baseline="central">Reserva</text>
+<line class="divider" x1="584" y1="218" x2="660" y2="218"/>
+<text class="ts text-gray" x="622" y="238" text-anchor="middle" dominant-baseline="central">Siempre gratis</text>
+
+<!-- ARROWS — Prestadores → Publicación -->
+<line class="arr" x1="122" y1="104" x2="142" y2="104" marker-end="url(#arrow)"/>
+<line class="arr" x1="122" y1="249" x2="142" y2="249" marker-end="url(#arrow)"/>
+
+<!-- ARROWS — Publicación → Estándar -->
+<line class="arr" x1="266" y1="104" x2="286" y2="104" marker-end="url(#arrow)"/>
+<line class="arr-dashed" x1="266" y1="249" x2="286" y2="249" marker-end="url(#arrow)"/>
+
+<!-- ARROWS — Estándar → Consumidores -->
+<line class="arr" x1="394" y1="104" x2="414" y2="104" marker-end="url(#arrow)"/>
+<line class="arr-dashed" x1="394" y1="249" x2="414" y2="249" marker-end="url(#arrow)"/>
+
+<!-- ARROWS — Consumidores ↔ Paciente -->
+<line class="arr" x1="554" y1="96"  x2="574" y2="96"  marker-end="url(#arrow)"/>
+<line class="arr" x1="574" y1="112" x2="554" y2="112" marker-end="url(#arrow)"/>
+<line class="arr-dashed" x1="554" y1="249" x2="574" y2="249" marker-end="url(#arrow)"/>
+
+<!-- LEYENDA -->
+<line class="legend-line" x1="20" y1="326" x2="46" y2="326" marker-end="url(#arrow)"/>
+<text class="ts inner-text" x="52" y="330">Modalidad 2 — lectura y escritura (reserva en tiempo real)</text>
+<line class="legend-dash" x1="20" y1="352" x2="46" y2="352" marker-end="url(#arrow)"/>
+<text class="ts inner-text" x="52" y="356">Modalidad 1 — solo lectura (visibilidad en IA y buscadores)</text>
+</svg>
