@@ -225,12 +225,46 @@ Ejemplos de código listos para adaptar:
 
 ---
 
+## Modos de publicación
+
+OpenMAPS/CL soporta dos modalidades de publicación, complementarias entre sí:
+
+### Modalidad 1 — Publicación directa (solo lectura)
+
+El prestador publica un archivo `openmaps-cl.json` en su propio dominio bajo la ruta estándar:
+
+```
+https://www.nombredelcentro.cl/.well-known/openmaps-cl.json
+```
+
+Cualquier sistema puede indexar este archivo directamente — motores de búsqueda, asistentes de inteligencia artificial, portales públicos, sistemas de investigación — sin necesidad de acuerdos ni autenticación.
+
+**Alcance:** visibilidad e información. Permite que sistemas como Google, Gemini o un portal del MINSAL informen al paciente sobre disponibilidad horaria. **No habilita la reserva** — para eso se requiere la Modalidad 2.
+
+### Modalidad 2 — Integración vía API (lectura y escritura)
+
+El prestador autoriza a su software de agenda para que publique disponibilidad en tiempo real hacia sistemas consumidores registrados, mediante la API OpenMAPS/CL. Esta modalidad habilita el ciclo completo:
+
+```
+Vendor publica disponibilidad  →  Sistema consumidor indexa
+Paciente selecciona una hora   →  Sistema consumidor solicita reserva
+Vendor confirma en el sistema  →  Hora queda marcada como ocupada
+```
+
+**Alcance:** ciclo completo de búsqueda y reserva en tiempo real. Es la modalidad requerida para plataformas transaccionales.
+
+Ambas modalidades son compatibles. Un prestador puede implementar las dos simultáneamente: la Modalidad 1 maximiza su visibilidad en sistemas de información, y la Modalidad 2 habilita la reserva efectiva a través de plataformas integradas.
+
+---
+
 ## ¿Quién puede usar OpenMAPS/CL?
 
 Cualquier organización puede implementar OpenMAPS/CL **sin solicitar permiso, sin registrarse y sin pagar tarifas**:
 
-- **Vendors de software de agenda médica** — para publicar disponibilidad en formato estándar
-- **Plataformas de búsqueda y agregadores** — para consumir disponibilidad de múltiples vendors sin integraciones individuales
+- **Prestadores de salud** — clínicas, hospitales, centros médicos y profesionales independientes, mediante publicación directa (Modalidad 1) o a través de su software de agenda (Modalidad 2)
+- **Vendors de software de agenda médica** — para publicar disponibilidad de sus clientes en formato estándar hacia sistemas consumidores (Modalidad 2)
+- **Plataformas de búsqueda y agregadores** — para consumir disponibilidad de múltiples fuentes sin integraciones a medida
+- **Asistentes de inteligencia artificial** — para indexar disponibilidad médica estructurada y responder consultas de pacientes
 - **Organismos públicos de salud** — para construir índices nacionales de disponibilidad (MINSAL, Fonasa, Superintendencia de Salud)
 - **Aseguradoras** — para mostrar a sus afiliados la red de prestadores disponibles en tiempo real
 - **Investigadores** — para estudiar patrones de acceso a atención de salud con datos estructurados
