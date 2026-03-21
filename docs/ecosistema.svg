@@ -85,7 +85,7 @@
 <rect class="bg-teal" x="414" y="24" width="140" height="160" rx="10" stroke-width="0.5"/>
 <text class="th text-teal" x="484" y="48" text-anchor="middle" dominant-baseline="central">Plataformas</text>
 <rect class="inner-box" x="424" y="62" width="120" height="30" rx="5"/>
-<text class="ts inner-text" x="484" y="77" text-anchor="middle" dominant-baseline="central">Fluxmed</text>
+<text class="ts inner-text" x="484" y="77" text-anchor="middle" dominant-baseline="central">Desarrollos propios</text>
 <rect class="inner-box" x="424" y="100" width="120" height="30" rx="5"/>
 <text class="ts inner-text" x="484" y="115" text-anchor="middle" dominant-baseline="central">MINSAL / Fonasa</text>
 <rect class="inner-box" x="424" y="138" width="120" height="30" rx="5"/>
