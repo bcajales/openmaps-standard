@@ -292,6 +292,10 @@ OpenMAPS/CL se alinea con la legislación y normativa técnica vigente en Chile:
 
 **Guía de Implementación FHIR Chile del MINSAL** — OpenMAPS/CL utiliza los códigos de especialidad SIS-MINSAL definidos en dicha guía, garantizando coherencia semántica con los sistemas públicos de salud.
 
+**Guía de Implementación Core-CL de HL7 Chile** — OpenMAPS/CL reconoce la GI Core-CL como la base canónica del ecosistema FHIR en Chile. Los campos de identificación de pacientes y prestadores en OpenMAPS/CL son consistentes con los perfiles Core-CL. Futuros perfiles OpenMAPS que implementen recursos FHIR nativos declararán su relación con Core-CL conforme a los lineamientos de HL7 Chile.
+
+**Ley 20.584** — Derechos y Deberes de las Personas en relación con Acciones vinculadas a su Atención en Salud. OpenMAPS/CL aplica privacidad por diseño en cumplimiento con esta ley: el estándar no define campos para datos clínicos, diagnósticos, medicamentos ni historial médico. Los únicos datos del paciente en una transacción de reserva son nombre y teléfono de contacto — el mínimo necesario para confirmar una cita.
+
 ---
 
 ## Contribuciones
