@@ -97,7 +97,7 @@ function construirPrestador({
   };
 
   if (region) provider.location.region = region;
-  if (lat !== null) { provider.location.latitude = lat; provider.location.longitude = lng; }
+  if (lat !== null && lng !== null) { provider.location.latitude = lat; provider.location.longitude = lng; }
   if (fonasaAccreditationLevel) provider.fonasa_accreditation_level = fonasaAccreditationLevel;
   if (superintendenciaCode) provider.superintendencia_code = superintendenciaCode;
   if (phone || email) {
@@ -217,7 +217,7 @@ const prestador = construirPrestador({
 // para evitar que setHours() opere en la zona horaria local del servidor.
 const horas = [];
 const bloquesHorarios = [9, 10, 11, 15, 16];
-const CHILE_OFFSET = "-03:00"; // Horario estándar de Chile (invierno). En verano (oct–mar) usar "-04:00".
+const CHILE_OFFSET = "-03:00"; // Horario de verano de Chile (oct–mar). En invierno (abr–sep) usar "-04:00".
 const fechaBase = new Date(Date.UTC(2026, 2, 21)); // 2026-03-21, solo para aritmética de fechas
 
 for (let dia = 0; dia < 3; dia++) {
