@@ -230,8 +230,7 @@ if __name__ == "__main__":
 
     for dia in range(3):
         for hora in bloques_horarios:
-            inicio = fecha_base.replace(
-                day=fecha_base.day + dia,
+            inicio = (fecha_base + timedelta(days=dia)).replace(
                 hour=hora,
                 minute=0,
                 second=0,

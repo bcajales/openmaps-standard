@@ -194,21 +194,29 @@ const prestador = construirPrestador({
 });
 
 // Generar horas disponibles para los próximos 3 días
+// Se construyen los strings ISO 8601 directamente con offset de Chile (-03:00)
+// para evitar que setHours() opere en la zona horaria local del servidor.
 const horas = [];
 const bloquesHorarios = [9, 10, 11, 15, 16];
-const fechaBase = new Date("2026-03-21T09:00:00-03:00");
+const CHILE_OFFSET = "-03:00";
+const fechaBase = new Date(Date.UTC(2026, 2, 21)); // 2026-03-21, solo para aritmética de fechas
 
 for (let dia = 0; dia < 3; dia++) {
   for (const hora of bloquesHorarios) {
-    const inicio = new Date(fechaBase);
-    inicio.setDate(inicio.getDate() + dia);
-    inicio.setHours(hora, 0, 0, 0);
+    const d = new Date(fechaBase);
+    d.setUTCDate(d.getUTCDate() + dia);
+    const year  = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day   = String(d.getUTCDate()).padStart(2, "0");
+    const hh    = String(hora).padStart(2, "0");
+    const startDatetime = `${year}-${month}-${day}T${hh}:00:00${CHILE_OFFSET}`;
+    const slotId = `MIVDR-PROV001-DER-${year}${month}${day}${hh}00`;
 
     horas.push(construirHora({
-      slotId: `MIVDR-PROV001-DER-${inicio.toISOString().slice(0, 16).replace(/[-:T]/g, "")}`,
+      slotId,
       providerId: "MIVDR-PROV-001",
       sisCode: "10",                  // DERMATOLOGÍA
-      startDatetime: inicio.toISOString(),
+      startDatetime,
       durationMinutes: 30,
       professionalName: "Dra. María González",
       rutProfessional: "15.234.567-8",

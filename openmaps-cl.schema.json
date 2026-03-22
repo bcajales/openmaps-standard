@@ -101,6 +101,12 @@
           "description": "Maximum waiting days guaranteed by GES for this condition.",
           "example": 30
         }
+      },
+      "if": {
+        "properties": { "is_ges": { "const": true } }
+      },
+      "then": {
+        "required": ["ges_problem_code"]
       }
     },
 
@@ -386,8 +392,8 @@
           "description": "confirmed = booked. rejected = not available. pending = vendor will confirm asynchronously."
         },
         "booking_id": {
-          "type": "string",
-          "description": "Unique identifier in the vendor's system."
+          "type": ["string", "null"],
+          "description": "Unique identifier in the vendor's system. Null when status is rejected."
         },
         "confirmation_code": {
           "type": "string",
