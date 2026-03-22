@@ -217,7 +217,7 @@ def construir_payload(vendor_id: str, prestadores: list, horas: list) -> dict:
 # ── Ejemplo de uso ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # Zona horaria de Chile (horario estándar). En verano (oct–mar) usar timedelta(hours=-4).
+    # Zona horaria de Chile (horario de verano, oct–mar). En invierno (abr–sep) usar timedelta(hours=-4).
     CHILE_TZ = timezone(timedelta(hours=-3))
 
     # Definir un prestador
