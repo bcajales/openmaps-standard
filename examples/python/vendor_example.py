@@ -113,7 +113,7 @@ class Prestador:
         }
         if self.ubicacion.region:
             d["location"]["region"] = self.ubicacion.region
-        if self.ubicacion.latitude is not None:
+        if self.ubicacion.latitude is not None and self.ubicacion.longitude is not None:
             d["location"]["latitude"] = self.ubicacion.latitude
             d["location"]["longitude"] = self.ubicacion.longitude
         if self.fonasa_accreditation_level:
