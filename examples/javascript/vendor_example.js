@@ -19,17 +19,36 @@ const SIS_MINSAL = {
   "03": "CARDIOLOGÍA",
   "04": "CARDIOCIRUGÍA",
   "05": "CIRUGÍA GENERAL",
+  "06": "CIRUGÍA PEDIÁTRICA",
+  "07": "CIRUGÍA PLÁSTICA Y REPARADORA",
+  "08": "CIRUGÍA TORÁCICA",
+  "09": "CIRUGÍA VASCULAR PERIFÉRICA",
   "10": "DERMATOLOGÍA",
   "11": "ENDOCRINOLOGÍA",
+  "12": "ENFERMEDADES RESPIRATORIAS",
   "13": "GASTROENTEROLOGÍA",
+  "14": "GENÉTICA CLÍNICA",
+  "15": "GERIATRÍA",
   "16": "GINECOLOGÍA",
+  "17": "HEMATOLOGÍA",
+  "18": "INFECTOLOGÍA",
+  "19": "INMUNOLOGÍA",
+  "20": "MEDICINA FÍSICA Y REHABILITACIÓN",
   "21": "MEDICINA INTERNA",
+  "22": "MEDICINA NUCLEAR",
+  "23": "NEFROLOGÍA",
+  "24": "NEONATOLOGÍA",
+  "25": "NEUROCIRUGÍA",
   "26": "NEUROLOGÍA",
+  "27": "NUTRIOLOGÍA",
+  "28": "OBSTETRICIA",
   "29": "OFTALMOLOGÍA",
+  "30": "ONCOLOGÍA MÉDICA",
   "31": "ORTOPEDIA Y TRAUMATOLOGÍA",
   "32": "OTORRINOLARINGOLOGÍA",
   "33": "PEDIATRÍA",
   "34": "PSIQUIATRÍA",
+  "35": "RADIOLOGÍA",
   "36": "REUMATOLOGÍA",
   "37": "UROLOGÍA",
   "38": "MEDICINA GENERAL/FAMILIAR",
@@ -198,7 +217,7 @@ const prestador = construirPrestador({
 // para evitar que setHours() opere en la zona horaria local del servidor.
 const horas = [];
 const bloquesHorarios = [9, 10, 11, 15, 16];
-const CHILE_OFFSET = "-03:00";
+const CHILE_OFFSET = "-03:00"; // Horario estándar de Chile (invierno). En verano (oct–mar) usar "-04:00".
 const fechaBase = new Date(Date.UTC(2026, 2, 21)); // 2026-03-21, solo para aritmética de fechas
 
 for (let dia = 0; dia < 3; dia++) {
@@ -210,7 +229,7 @@ for (let dia = 0; dia < 3; dia++) {
     const day   = String(d.getUTCDate()).padStart(2, "0");
     const hh    = String(hora).padStart(2, "0");
     const startDatetime = `${year}-${month}-${day}T${hh}:00:00${CHILE_OFFSET}`;
-    const slotId = `MIVDR-PROV001-DER-${year}${month}${day}${hh}00`;
+    const slotId = `MIVDR-PROV-001-DER-${year}${month}${day}${hh}00`;
 
     horas.push(construirHora({
       slotId,

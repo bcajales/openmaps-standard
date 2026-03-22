@@ -23,17 +23,36 @@ SIS_MINSAL = {
     "03": "CARDIOLOGÍA",
     "04": "CARDIOCIRUGÍA",
     "05": "CIRUGÍA GENERAL",
+    "06": "CIRUGÍA PEDIÁTRICA",
+    "07": "CIRUGÍA PLÁSTICA Y REPARADORA",
+    "08": "CIRUGÍA TORÁCICA",
+    "09": "CIRUGÍA VASCULAR PERIFÉRICA",
     "10": "DERMATOLOGÍA",
     "11": "ENDOCRINOLOGÍA",
+    "12": "ENFERMEDADES RESPIRATORIAS",
     "13": "GASTROENTEROLOGÍA",
+    "14": "GENÉTICA CLÍNICA",
+    "15": "GERIATRÍA",
     "16": "GINECOLOGÍA",
+    "17": "HEMATOLOGÍA",
+    "18": "INFECTOLOGÍA",
+    "19": "INMUNOLOGÍA",
+    "20": "MEDICINA FÍSICA Y REHABILITACIÓN",
     "21": "MEDICINA INTERNA",
+    "22": "MEDICINA NUCLEAR",
+    "23": "NEFROLOGÍA",
+    "24": "NEONATOLOGÍA",
+    "25": "NEUROCIRUGÍA",
     "26": "NEUROLOGÍA",
+    "27": "NUTRIOLOGÍA",
+    "28": "OBSTETRICIA",
     "29": "OFTALMOLOGÍA",
+    "30": "ONCOLOGÍA MÉDICA",
     "31": "ORTOPEDIA Y TRAUMATOLOGÍA",
     "32": "OTORRINOLARINGOLOGÍA",
     "33": "PEDIATRÍA",
     "34": "PSIQUIATRÍA",
+    "35": "RADIOLOGÍA",
     "36": "REUMATOLOGÍA",
     "37": "UROLOGÍA",
     "38": "MEDICINA GENERAL/FAMILIAR",
@@ -198,7 +217,7 @@ def construir_payload(vendor_id: str, prestadores: list, horas: list) -> dict:
 # ── Ejemplo de uso ────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    # Zona horaria de Chile (horario estándar)
+    # Zona horaria de Chile (horario estándar). En verano (oct–mar) usar timedelta(hours=-4).
     CHILE_TZ = timezone(timedelta(hours=-3))
 
     # Definir un prestador
@@ -237,7 +256,7 @@ if __name__ == "__main__":
                 microsecond=0,
             )
             hora_medica = Hora(
-                slot_id=f"MIVDR-PROV001-DER-{inicio.strftime('%Y%m%d-%H%M')}",
+                slot_id=f"MIVDR-PROV-001-DER-{inicio.strftime('%Y%m%d%H%M')}",
                 provider_id="MIVDR-PROV-001",
                 sis_code="10",          # DERMATOLOGÍA
                 professional_name="Dra. María González",
