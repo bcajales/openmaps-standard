@@ -31,23 +31,21 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Extraer texto según el tipo de evento
             let query = '';
             let issueNumber = 0;
             
             if (context.eventName === 'issues') {
-              query = `${context.payload.issue.title} ${context.payload.issue.body}`;
+              query = context.payload.issue.title + ' ' + context.payload.issue.body;
               issueNumber = context.payload.issue.number;
             } else if (context.eventName === 'issue_comment') {
               query = context.payload.comment.body;
               issueNumber = context.payload.issue.number;
             }
             
-            // Llamar a Dify
             const response = await fetch('https://api.dify.ai/v1/workflows/run', {
               method: 'POST',
               headers: {
-                'Authorization': `Bearer ${process.env.DIFY_KEY}`,
+                'Authorization': 'Bearer ' + process.env.DIFY_KEY,
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
@@ -60,7 +58,6 @@ jobs:
             const data = await response.json();
             console.log('Dify response:', JSON.stringify(data, null, 2));
             
-            // Extraer respuesta
             const outputs = data.data?.outputs || {};
             const answer = outputs.respuesta_validador ||
                           outputs.respuesta_redactor ||
@@ -75,16 +72,9 @@ jobs:
             
             const agente = outputs.agente_usado || 'desconocido';
             
-            // Comentar en el Issue
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              body: `🤖 **OpenMAPS Bot** (agente: \`${agente}\`)\n\n${answer}`
+              body: '🤖 **OpenMAPS Bot** (agente: `' + agente + '`)\n\n' + answer
             });
-
-
-Crea un nuevo Issue:
-```
-Title: Test final con permisos
-Body: ¿Cómo valido códigos SIS-MINSAL?
