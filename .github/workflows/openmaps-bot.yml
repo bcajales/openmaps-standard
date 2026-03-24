@@ -6,6 +6,10 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  issues: write
+  contents: read
+
 jobs:
   respond:
     runs-on: ubuntu-latest
@@ -78,3 +82,9 @@ jobs:
               issue_number: issueNumber,
               body: `🤖 **OpenMAPS Bot** (agente: \`${agente}\`)\n\n${answer}`
             });
+
+
+Crea un nuevo Issue:
+```
+Title: Test final con permisos
+Body: ¿Cómo valido códigos SIS-MINSAL?
