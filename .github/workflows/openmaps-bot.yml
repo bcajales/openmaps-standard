@@ -19,49 +19,62 @@ jobs:
             echo "authorized=false" >> $GITHUB_OUTPUT
           fi
       
-      - name: Extract query
-        if: steps.check.outputs.authorized == 'true'
-        id: query
-        run: |
-          if [ "${{ github.event_name }}" == "issues" ]; then
-            TEXT="${{ github.event.issue.title }} ${{ github.event.issue.body }}"
-            NUMBER="${{ github.event.issue.number }}"
-          else
-            TEXT="${{ github.event.comment.body }}"
-            NUMBER="${{ github.event.issue.number }}"
-          fi
-          echo "text=$TEXT" >> $GITHUB_OUTPUT
-          echo "number=$NUMBER" >> $GITHUB_OUTPUT
-      
-      - name: Call Dify
-        if: steps.check.outputs.authorized == 'true'
-        id: dify
-        run: |
-          RESPONSE=$(curl -s -X POST https://api.dify.ai/v1/workflows/run \
-            -H "Authorization: Bearer ${{ secrets.DIFY_API_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"inputs\":{\"payload\":\"${{ steps.query.outputs.text }}\"},\"response_mode\":\"blocking\",\"user\":\"github\"}")
-          
-          echo "$RESPONSE" > /tmp/response.json
-          
-          ANSWER=$(echo "$RESPONSE" | jq -r '.data.outputs.respuesta_validador // .data.outputs.respuesta_redactor // .data.outputs.respuesta_github // .data.outputs.respuesta_depurador // .data.outputs.respuesta_seguridad // .data.outputs.respuesta_architect // .data.outputs.respuesta_investigador // .data.outputs.respuesta_integracion // .data.outputs.respuesta_rendimiento // "Error: no se pudo extraer respuesta"')
-          AGENTE=$(echo "$RESPONSE" | jq -r '.data.outputs.agente_usado // "desconocido"')
-          
-          echo "answer=$ANSWER" >> $GITHUB_OUTPUT
-          echo "agente=$AGENTE" >> $GITHUB_OUTPUT
-      
-      - name: Post response
+      - name: Call Dify and Post
         if: steps.check.outputs.authorized == 'true'
         uses: actions/github-script@v7
+        env:
+          DIFY_KEY: ${{ secrets.DIFY_API_KEY }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const answer = `${{ steps.dify.outputs.answer }}`;
-            const agente = `${{ steps.dify.outputs.agente }}`;
+            // Extraer texto según el tipo de evento
+            let query = '';
+            let issueNumber = 0;
             
+            if (context.eventName === 'issues') {
+              query = `${context.payload.issue.title} ${context.payload.issue.body}`;
+              issueNumber = context.payload.issue.number;
+            } else if (context.eventName === 'issue_comment') {
+              query = context.payload.comment.body;
+              issueNumber = context.payload.issue.number;
+            }
+            
+            // Llamar a Dify
+            const response = await fetch('https://api.dify.ai/v1/workflows/run', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${process.env.DIFY_KEY}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                inputs: { payload: query },
+                response_mode: 'blocking',
+                user: 'github'
+              })
+            });
+            
+            const data = await response.json();
+            console.log('Dify response:', JSON.stringify(data, null, 2));
+            
+            // Extraer respuesta
+            const outputs = data.data?.outputs || {};
+            const answer = outputs.respuesta_validador ||
+                          outputs.respuesta_redactor ||
+                          outputs.respuesta_github ||
+                          outputs.respuesta_depurador ||
+                          outputs.respuesta_seguridad ||
+                          outputs.respuesta_architect ||
+                          outputs.respuesta_investigador ||
+                          outputs.respuesta_integracion ||
+                          outputs.respuesta_rendimiento ||
+                          'Error: no se pudo extraer respuesta';
+            
+            const agente = outputs.agente_usado || 'desconocido';
+            
+            // Comentar en el Issue
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ steps.query.outputs.number }},
+              issue_number: issueNumber,
               body: `🤖 **OpenMAPS Bot** (agente: \`${agente}\`)\n\n${answer}`
             });
