@@ -17,14 +17,21 @@ jobs:
       - name: Check authorization and rate limit
         id: check
         run: |
-          # Tú (owner) siempre autorizado sin límites
+          # Si eres tú Y es un comentario (no Issue nuevo), no procesar
+          if [ "${{ github.event.sender.login }}" == "bcajales" ] && [ "${{ github.event_name }}" == "issue_comment" ]; then
+            echo "authorized=false" >> $GITHUB_OUTPUT
+            echo "reason=owner_comment_ignored" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Si eres tú Y es un Issue nuevo, procesar sin límites
           if [ "${{ github.event.sender.login }}" == "bcajales" ]; then
             echo "authorized=true" >> $GITHUB_OUTPUT
             echo "reason=owner" >> $GITHUB_OUTPUT
             exit 0
           fi
           
-          # Para otros usuarios: máximo 3 Issues en la última hora
+          # Para otros usuarios: verificar rate limit (tanto Issues como comentarios)
           RECENT_ISSUES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/issues?creator=${{ github.event.sender.login }}&since=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%SZ)" \
             | jq '. | length')
@@ -40,7 +47,7 @@ jobs:
           fi
       
       - name: Post rate limit message
-        if: steps.check.outputs.authorized == 'false'
+        if: steps.check.outputs.authorized == 'false' && steps.check.outputs.reason == 'rate_limit_exceeded'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
