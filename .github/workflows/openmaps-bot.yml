@@ -17,7 +17,7 @@ jobs:
       - name: Check authorization and rate limit
         id: check
         run: |
-          # Si eres tú Y es un comentario (no Issue nuevo), no procesar
+          # Si eres tú Y es un comentario, no procesar
           if [ "${{ github.event.sender.login }}" == "bcajales" ] && [ "${{ github.event_name }}" == "issue_comment" ]; then
             echo "authorized=false" >> $GITHUB_OUTPUT
             echo "reason=owner_comment_ignored" >> $GITHUB_OUTPUT
@@ -28,6 +28,21 @@ jobs:
           if [ "${{ github.event.sender.login }}" == "bcajales" ]; then
             echo "authorized=true" >> $GITHUB_OUTPUT
             echo "reason=owner" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # NUEVO: Si el Issue ya tiene comentarios tuyos, no procesar (lo manejaste manualmente)
+          ISSUE_NUMBER="${{ github.event.issue.number }}"
+          OWNER_COMMENTS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/comments" \
+            | jq '[.[] | select(.user.login == "bcajales")] | length')
+          
+          echo "Issue #${ISSUE_NUMBER} has ${OWNER_COMMENTS} comments from owner"
+          
+          if [ "$OWNER_COMMENTS" -gt 0 ]; then
+            echo "authorized=false" >> $GITHUB_OUTPUT
+            echo "reason=owner_already_responded" >> $GITHUB_OUTPUT
+            echo "Issue already handled manually by owner, bot will not respond"
             exit 0
           fi
           
@@ -116,5 +131,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              body: '🤖 **OpenMAPS Bot** (agente: `' + agente + '`)\n\n' + answer
+              body: '📘 **OpenMAPS Assistant** (agente: `' + agente + '`)\n\n' + answer
             });
