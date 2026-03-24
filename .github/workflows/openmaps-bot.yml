@@ -1,0 +1,42 @@
+name: OpenMAPS Bot
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  respond:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if authorized
+        id: check
+        run: |
+          if [ "${{ github.event.sender.login }}" == "bcajales" ]; then
+            echo "authorized=true" >> $GITHUB_OUTPUT
+          else
+            echo "authorized=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Extract query
+        if: steps.check.outputs.authorized == 'true'
+        id: query
+        run: |
+          if [ "${{ github.event_name }}" == "issues" ]; then
+            echo "text=${{ github.event.issue.title }} ${{ github.event.issue.body }}" >> $GITHUB_OUTPUT
+            echo "number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "text=${{ github.event.comment.body }}" >> $GITHUB_OUTPUT
+            echo "number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Call Dify
+        if: steps.check.outputs.authorized == 'true'
+        id: dify
+        run: |
+          RESPONSE=$(curl -X POST https://api.dify.ai/v1/workflows/run \
+            -H "Authorization: Bearer ${{ secrets.DIFY_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"inputs\":{\"payload\":\"${{ steps.query.outputs.text }}\"},\"response_mode\":\"blocking\",\"user\":\"github\"}")
+          echo "$RESPONSE"
