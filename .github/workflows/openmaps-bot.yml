@@ -14,14 +14,47 @@ jobs:
   respond:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if authorized
+      - name: Check authorization and rate limit
         id: check
         run: |
+          # Tú (owner) siempre autorizado sin límites
           if [ "${{ github.event.sender.login }}" == "bcajales" ]; then
             echo "authorized=true" >> $GITHUB_OUTPUT
+            echo "reason=owner" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Para otros usuarios: máximo 3 Issues en la última hora
+          RECENT_ISSUES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues?creator=${{ github.event.sender.login }}&since=$(date -u -d '1 hour ago' +%Y-%m-%dT%H:%M:%SZ)" \
+            | jq '. | length')
+          
+          echo "User ${{ github.event.sender.login }} has created $RECENT_ISSUES issues in the last hour"
+          
+          if [ "$RECENT_ISSUES" -le 3 ]; then
+            echo "authorized=true" >> $GITHUB_OUTPUT
+            echo "reason=within_limit" >> $GITHUB_OUTPUT
           else
             echo "authorized=false" >> $GITHUB_OUTPUT
+            echo "reason=rate_limit_exceeded" >> $GITHUB_OUTPUT
           fi
+      
+      - name: Post rate limit message
+        if: steps.check.outputs.authorized == 'false'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = context.eventName === 'issues' ? 
+              context.payload.issue.number : 
+              context.payload.issue.number;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: '⚠️ **Límite de consultas excedido**\n\nHas alcanzado el máximo de 3 consultas por hora. Por favor, intenta nuevamente más tarde.\n\nSi necesitas asistencia urgente, puedes revisar la [documentación](https://github.com/bcajales/openmaps-standard/tree/main/docs).'
+            });
       
       - name: Call Dify and Post
         if: steps.check.outputs.authorized == 'true'
