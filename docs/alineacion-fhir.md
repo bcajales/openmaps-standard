@@ -203,3 +203,49 @@ Muchos hospitales chilenos, especialmente los públicos gestionados con Rayen u 
 
 
 OpenMAPS/CL se alinea exclusivamente con FHIR R4. La integración con sistemas que hablan HL7 v2 requiere una capa de transformación adicional que está fuera del alcance de este estándar.
+
+## Decisiones de diseño donde OpenMAPS/CL define algo que Core-CL no tiene
+ 
+### Tipos de cobertura (`insurance_type`)
+ 
+**Estado:** OpenMAPS define un enum provisional. Propuesta enviada a HL7 Chile (Issue pendiente).
+ 
+**FHIR Chile Core-CL:** No define perfil `CL Coverage` ni ValueSet para tipos de cobertura.
+ 
+**OpenMAPS/CL:** Define enum con 9 valores:
+- FONASA-A, FONASA-B, FONASA-C, FONASA-D
+- FONASA-LE (Libre Elección)
+- ISAPRE (privadas)
+- DIPRECA (Carabineros)
+- CAPREDENA (Fuerzas Armadas)
+- PARTICULAR (sin previsión)
+ 
+**Justificación temporal:**
+- Ningún sistema FHIR chileno ha definido estos códigos oficialmente
+- El agendamiento médico requiere filtrar horas por tipo de previsión aceptada
+- ~550.000 beneficiarios DIPRECA/CAPREDENA necesitan representación en sistemas de salud
+- Sin un estándar oficial, cada implementador inventará su propio enum
+ 
+**Impacto de NO tener este estándar:**
+- Sistema A usa "FONASA_C" (guion bajo)
+- Sistema B usa "fonasa-c" (minúsculas)
+- Sistema C usa "FONASA-TRAMO-C" (nombre largo)
+- Sistema D usa código numérico "3"
+- **Resultado:** Incompatibilidad entre sistemas "FHIR-compliant"
+ 
+**Plan futuro:**
+- Si HL7 Chile adopta un ValueSet oficial en Core-CL, OpenMAPS lo adoptará inmediatamente
+- El enum actual se marcará como `deprecated` en OpenMAPS v0.2.0
+- Se mantendrá compatibilidad hacia atrás por 12 meses
+- Herramientas de migración automática para vendors
+ 
+**Base normativa de los códigos propuestos:**
+- FONASA tramos A/B/C/D: Ley 18.469 Art. 29
+- Libre Elección: D.S. 369/1985 y modificaciones
+- DIPRECA: Ley 18.458 (1985)
+- CAPREDENA: DFL 1/2007 Ministerio de Defensa
+- Superintendencia de Salud: Fuente autoritativa para acreditación
+ 
+**Crédito:** Gap de interoperabilidad detectado por Jessica Menéndez en [Issue #5](https://github.com/bcajales/openmaps-standard/issues/5).
+ 
+**Escalamiento:** Propuesta formal enviada a HL7 Chile para agregar perfil CL Coverage a Core-CL. Ver documento completo de la propuesta en [este Issue](link-pendiente).
