@@ -279,7 +279,7 @@ if __name__ == "__main__":
 
     print(json.dumps(payload, indent=2, ensure_ascii=False))
     print(f"\n✓ {len(horas)} horas para 1 prestador generadas")
-    print(f"  Especialidad: {SIS_MINSAL[horas[0].sis_code]} (código {horas[0].sis_code})")
+    print(f"  Especialidad: {SIS_MINSAL.get(horas[0].sis_code, '')} (código {horas[0].sis_code})")
     print(f"  Precio particular (base_price): ${horas[0].base_price:,.0f} CLP")
     print(f"  Nivel acreditación Fonasa LE: {horas[0].fonasa_accreditation_level}")
     print(f"  El sistema consumidor determina los copagos por tramo")

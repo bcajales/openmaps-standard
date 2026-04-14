@@ -110,6 +110,36 @@ function construirPrestador({
   return provider;
 }
 
+// ── Utilidad de fechas ───────────────────────────────────────────────────────
+
+/**
+ * Suma minutos a un string ISO 8601 preservando el offset de zona horaria original.
+ * Evita Date.toISOString() que siempre convierte a UTC (sufijo Z).
+ *
+ * @param {string} isoString — Fecha ISO 8601 con offset (ej. "2026-03-21T10:00:00-03:00")
+ * @param {number} minutes — Minutos a sumar
+ * @returns {string} Fecha ISO 8601 con el mismo offset
+ */
+function addMinutesToISO(isoString, minutes) {
+  const offsetMatch = isoString.match(/([+-]\d{2}:\d{2})$/);
+  const offset = offsetMatch ? offsetMatch[1] : "+00:00";
+  const date = new Date(isoString);
+  const result = new Date(date.getTime() + minutes * 60 * 1000);
+  const offsetSign = offset[0] === "+" ? 1 : -1;
+  const offsetH = parseInt(offset.slice(1, 3), 10);
+  const offsetM = parseInt(offset.slice(4, 6), 10);
+  const offsetMs = offsetSign * (offsetH * 60 + offsetM) * 60 * 1000;
+  const local = new Date(result.getTime() + offsetMs);
+  const pad = (n) => String(n).padStart(2, "0");
+  const y = local.getUTCFullYear();
+  const mo = pad(local.getUTCMonth() + 1);
+  const d = pad(local.getUTCDate());
+  const h = pad(local.getUTCHours());
+  const mi = pad(local.getUTCMinutes());
+  const s = pad(local.getUTCSeconds());
+  return `${y}-${mo}-${d}T${h}:${mi}:${s}${offset}`;
+}
+
 // ── Constructor de hora médica ────────────────────────────────────────────────
 
 /**
@@ -136,8 +166,7 @@ function construirHora({
   gesProblemCode = null,
   basePrice = null,           // Precio particular en CLP
 }) {
-  const inicio = new Date(startDatetime);
-  const termino = new Date(inicio.getTime() + durationMinutes * 60 * 1000);
+  const endDatetime = addMinutesToISO(startDatetime, durationMinutes);
 
   const ges = { is_ges: isGes };
   if (isGes && gesProblemCode) ges.ges_problem_code = gesProblemCode;
@@ -149,8 +178,8 @@ function construirHora({
       sis_code: sisCode,
       sis_name: SIS_MINSAL[sisCode] || "",
     },
-    start_datetime: inicio.toISOString(),
-    end_datetime: termino.toISOString(),
+    start_datetime: startDatetime,
+    end_datetime: endDatetime,
     duration_minutes: durationMinutes,
     status: "available",
     modality,
@@ -191,76 +220,80 @@ function construirPayload(vendorId, prestadores, horas) {
   };
 }
 
-// ── Ejemplo de uso ────────────────────────────────────────────────────────────
+// ── Exportar para uso como módulo ─────────────────────────────────────────────
 
-const prestador = construirPrestador({
-  providerId: "MIVDR-PROV-001",
-  name: "Centro Médico Ejemplo",
-  providerType: "medical_center",
-  rutProvider: "76.543.210-1",
-  acceptsFonasa: true,
-  fonasaAccreditationLevel: "2",   // Obtenido del Registro Nacional de Prestadores
-  libreEleccion: true,
-  address: "Av. Providencia 1234",
-  commune: "Providencia",
-  city: "Santiago",
-  region: "Región Metropolitana",
-  lat: -33.4294,
-  lng: -70.6148,
-  phone: "+56223456789",
-  email: "contacto@centromedico.cl",
-  website: "https://centromedico.cl",
-});
-
-// Generar horas disponibles para los próximos 3 días
-// Se construyen los strings ISO 8601 directamente con offset de Chile (-03:00)
-// para evitar que setHours() opere en la zona horaria local del servidor.
-const horas = [];
-const bloquesHorarios = [9, 10, 11, 15, 16];
-const CHILE_OFFSET = "-03:00"; // Horario de verano de Chile (oct–mar). En invierno (abr–sep) usar "-04:00".
-const fechaBase = new Date(Date.UTC(2026, 2, 21)); // 2026-03-21, solo para aritmética de fechas
-
-for (let dia = 0; dia < 3; dia++) {
-  for (const hora of bloquesHorarios) {
-    const d = new Date(fechaBase);
-    d.setUTCDate(d.getUTCDate() + dia);
-    const year  = d.getUTCFullYear();
-    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
-    const day   = String(d.getUTCDate()).padStart(2, "0");
-    const hh    = String(hora).padStart(2, "0");
-    const startDatetime = `${year}-${month}-${day}T${hh}:00:00${CHILE_OFFSET}`;
-    const slotId = `MIVDR-PROV-001-DER-${year}${month}${day}${hh}00`;
-
-    horas.push(construirHora({
-      slotId,
-      providerId: "MIVDR-PROV-001",
-      sisCode: "10",                  // DERMATOLOGÍA
-      startDatetime,
-      durationMinutes: 30,
-      professionalName: "Dra. María González",
-      rutProfessional: "15.234.567-8",
-      acceptsFonasa: true,
-      fonasaAccreditationLevel: "2",
-      libreEleccion: true,
-      basePrice: 48000,               // Precio particular — el consumidor calcula copagos
-    }));
-  }
-}
-
-const payload = construirPayload("mi-software-de-agenda", [prestador], horas);
-
-console.log(JSON.stringify(payload, null, 2));
-console.log(`\n✓ ${horas.length} horas para 1 prestador generadas`);
-console.log(`  Especialidad: ${SIS_MINSAL["10"]} (código 10)`);
-console.log(`  Precio particular (base_price): $${(48000).toLocaleString("es-CL")} CLP`);
-console.log(`  Nivel acreditación Fonasa LE: 2`);
-console.log(`  El sistema consumidor determina los copagos por tramo`);
-console.log(`  según el arancel público de Fonasa.`);
-
-// Exportar para uso como módulo
 module.exports = {
   construirPrestador,
   construirHora,
   construirPayload,
+  addMinutesToISO,
   SIS_MINSAL,
 };
+
+// ── Ejemplo de uso ────────────────────────────────────────────────────────────
+
+if (require.main === module) {
+  const prestador = construirPrestador({
+    providerId: "MIVDR-PROV-001",
+    name: "Centro Médico Ejemplo",
+    providerType: "medical_center",
+    rutProvider: "76.543.210-1",
+    acceptsFonasa: true,
+    fonasaAccreditationLevel: "2",   // Obtenido del Registro Nacional de Prestadores
+    libreEleccion: true,
+    address: "Av. Providencia 1234",
+    commune: "Providencia",
+    city: "Santiago",
+    region: "Región Metropolitana",
+    lat: -33.4294,
+    lng: -70.6148,
+    phone: "+56223456789",
+    email: "contacto@centromedico.cl",
+    website: "https://centromedico.cl",
+  });
+
+  // Generar horas disponibles para los próximos 3 días
+  // Se construyen los strings ISO 8601 directamente con offset de Chile (-03:00)
+  // para evitar que setHours() opere en la zona horaria local del servidor.
+  const horas = [];
+  const bloquesHorarios = [9, 10, 11, 15, 16];
+  const CHILE_OFFSET = "-03:00"; // Horario de verano de Chile (sep–abr). En invierno (abr–sep) usar "-04:00".
+  const fechaBase = new Date(Date.UTC(2026, 2, 21)); // 2026-03-21, solo para aritmética de fechas
+
+  for (let dia = 0; dia < 3; dia++) {
+    for (const hora of bloquesHorarios) {
+      const d = new Date(fechaBase);
+      d.setUTCDate(d.getUTCDate() + dia);
+      const year  = d.getUTCFullYear();
+      const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const day   = String(d.getUTCDate()).padStart(2, "0");
+      const hh    = String(hora).padStart(2, "0");
+      const startDatetime = `${year}-${month}-${day}T${hh}:00:00${CHILE_OFFSET}`;
+      const slotId = `MIVDR-PROV-001-DER-${year}${month}${day}${hh}00`;
+
+      horas.push(construirHora({
+        slotId,
+        providerId: "MIVDR-PROV-001",
+        sisCode: "10",                  // DERMATOLOGÍA
+        startDatetime,
+        durationMinutes: 30,
+        professionalName: "Dra. María González",
+        rutProfessional: "15.234.567-8",
+        acceptsFonasa: true,
+        fonasaAccreditationLevel: "2",
+        libreEleccion: true,
+        basePrice: 48000,               // Precio particular — el consumidor calcula copagos
+      }));
+    }
+  }
+
+  const payload = construirPayload("mi-software-de-agenda", [prestador], horas);
+
+  console.log(JSON.stringify(payload, null, 2));
+  console.log(`\n✓ ${horas.length} horas para 1 prestador generadas`);
+  console.log(`  Especialidad: ${SIS_MINSAL["10"]} (código 10)`);
+  console.log(`  Precio particular (base_price): $${(48000).toLocaleString("es-CL")} CLP`);
+  console.log(`  Nivel acreditación Fonasa LE: 2`);
+  console.log(`  El sistema consumidor determina los copagos por tramo`);
+  console.log(`  según el arancel público de Fonasa.`);
+}

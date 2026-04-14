@@ -82,7 +82,7 @@ El payload sigue la estructura `availability_payload` definida en el esquema:
 
 **Consideraciones importantes:**
 
-- **Fechas y horas** deben incluir el offset de zona horaria: `-03:00` en horario estándar, `-04:00` en horario de verano (marzo a octubre en Chile)
+- **Fechas y horas** deben incluir el offset de zona horaria: `-04:00` en horario estándar (invierno, abr–sep) y `-03:00` en horario de verano (sep–abr)
 - **`slot_id`** debe ser estable — usar siempre el mismo identificador para la misma hora en sincronizaciones sucesivas
 - **Prefijos en `slot_id`** — incluir un prefijo que identifique al vendor para evitar colisiones: `MIVDR-PROV001-DER-20260321-1000`
 - **Datos del prestador** — incluir el objeto `provider` solo cuando la información del prestador cambia; los sistemas consumidores guardan caché de estos datos
