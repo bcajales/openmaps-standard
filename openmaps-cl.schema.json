@@ -20,6 +20,12 @@
     }
   },
 
+  "oneOf": [
+    { "$ref": "#/definitions/availability_payload" },
+    { "$ref": "#/definitions/booking_request" },
+    { "$ref": "#/definitions/booking_response" }
+  ],
+
   "definitions": {
 
     "rut": {
@@ -37,8 +43,8 @@
 
     "insurance_type": {
       "type": "string",
-      "enum": ["FONASA-A", "FONASA-B", "FONASA-C", "FONASA-D", "FONASA-LE", "ISAPRE", "PARTICULAR"],
-      "description": "Chilean insurance or coverage type. FONASA-A through D are the four Fonasa tiers. FONASA-LE = Libre Elección (any tier). ISAPRE = any private insurer. PARTICULAR = uninsured / self-pay."
+      "enum": ["FONASA-A", "FONASA-B", "FONASA-C", "FONASA-D", "FONASA-LE", "ISAPRE", "DIPRECA", "CAPREDENA", "PARTICULAR"],
+      "description": "Chilean insurance or coverage type. FONASA-A through D are the four Fonasa tiers. FONASA-LE = Libre Elección (any tier). ISAPRE = any private insurer. DIPRECA = Carabineros de Chile (Ley 18.458). CAPREDENA = Fuerzas Armadas (DFL 1/2007). PARTICULAR = uninsured / self-pay."
     },
 
     "provider_type": {
@@ -274,7 +280,7 @@
         "start_datetime": {
           "type": "string",
           "format": "date-time",
-          "description": "ISO 8601 with timezone offset. Use -03:00 (standard) or -04:00 (summer).",
+          "description": "ISO 8601 with timezone offset. Use -04:00 (standard/winter, Apr–Sep) or -03:00 (summer/CLST, Sep–Apr).",
           "example": "2026-03-21T10:00:00-03:00"
         },
         "end_datetime": {
